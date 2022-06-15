@@ -20,7 +20,7 @@ namespace TelegramBot
                 var message = update.Message;
                 if (message.Text.ToLower() == "/start")
                 {
-                    await botClient.SendTextMessageAsync(message.Chat, "Привет с большого бодуна! Напишите как к вам обращаться", replyMarkup: new ForceReplyMarkup { Selective = true });
+                    await botClient.SendTextMessageAsync(message.Chat, "Привет с большого бодуна! Напишите как к вам обращаться.", replyMarkup: new ForceReplyMarkup { Selective = true });
                 }
 
                 if (message.ReplyToMessage != null && message.ReplyToMessage.Text.Contains("Привет с большого бодуна! Напишите как к вам обращаться."))
@@ -29,11 +29,11 @@ namespace TelegramBot
                     await botClient.SendTextMessageAsync(message.Chat, "Дратути еще раз, " + userName + "! Что желаете взглянуть?");
 
                     var inlineKeyboard = new InlineKeyboardMarkup(new[]
-    {
+                    {
                         // first row
                         new []
                         {
-                            InlineKeyboardButton.WithCallbackData("1.1", "11"),
+                            InlineKeyboardButton.WithCallbackData("Yes or No", "11"),
                             InlineKeyboardButton.WithCallbackData("1.2", "12"),
                         },
                         // second row
@@ -45,7 +45,23 @@ namespace TelegramBot
                     });
                     await botClient.SendTextMessageAsync(message.Chat, "Нажмите на кнопку:", replyMarkup: inlineKeyboard);
                 }
+
             }
+
+            if (update.Type == Telegram.Bot.Types.Enums.UpdateType.CallbackQuery)
+            {
+                var inlineMes = update.CallbackQuery.Data;
+                if (inlineMes == "11")
+                {
+                    YesNo ex = new YesNo();
+                    ex.GetJson();
+                    var img = JsonConvert.DeserializeObject<AnswerImage>(ex._json);
+                    botClient.SendAnimationAsync(update.CallbackQuery.Message.Chat.Id, img.Image).GetAwaiter();
+                }
+            }
+
+
+            
 
         }
 
