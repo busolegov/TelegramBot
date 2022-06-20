@@ -7,8 +7,25 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TelegramBot 
 {
+
     public class Program 
     {
+        public static async Task SendChoiceBlockAsync(ITelegramBotClient botClient, Update update)
+        {
+            var message = update.Message;
+            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+{
+                        // first row
+                        new []
+                        {
+                            InlineKeyboardButton.WithCallbackData("Yes or No", "11"),
+                            InlineKeyboardButton.WithCallbackData("What's day", "12"),
+                        },
+                    });
+            await botClient.SendTextMessageAsync(message.Chat, "Нажмите на кнопку:", replyMarkup: inlineKeyboard);
+
+        }
+
         private const string token = "5329898591:AAEqcU0Zc6KmE_ali21qFIWyA-trg1bXHUM";
         public static ITelegramBotClient bot = new TelegramBotClient(token);
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
@@ -28,24 +45,25 @@ namespace TelegramBot
                     var userName = message.Text;
                     await botClient.SendTextMessageAsync(message.Chat, "Дратути еще раз, " + userName + "! Что желаете взглянуть?");
 
-                    var inlineKeyboard = new InlineKeyboardMarkup(new[]
-                    {
-                        // first row
-                        new []
-                        {
-                            InlineKeyboardButton.WithCallbackData("Yes or No", "11"),
-                            InlineKeyboardButton.WithCallbackData("1.2", "12"),
-                        },
-                        // second row
-                        new []
-                        {
-                            InlineKeyboardButton.WithCallbackData("2.1", "21"),
-                            InlineKeyboardButton.WithCallbackData("2.2", "22"),
-                        }
-                    });
-                    await botClient.SendTextMessageAsync(message.Chat, "Нажмите на кнопку:", replyMarkup: inlineKeyboard);
-                }
+                    await SendChoiceBlockAsync(bot, update);
 
+                    //    var inlineKeyboard = new InlineKeyboardMarkup(new[]
+                    //    {
+                    //        // first row
+                    //        new []
+                    //        {
+                    //            InlineKeyboardButton.WithCallbackData("Yes or No", "11"),
+                    //            InlineKeyboardButton.WithCallbackData("What's day", "12"),
+                    //        },
+                    //        // second row
+                    //        new []
+                    //        {
+                    //            InlineKeyboardButton.WithCallbackData("2.1", "21"),
+                    //            InlineKeyboardButton.WithCallbackData("2.2", "22"),
+                    //        }
+                    //    });
+                    //    await botClient.SendTextMessageAsync(message.Chat, "Нажмите на кнопку:", replyMarkup: inlineKeyboard);
+                }
             }
 
             if (update.Type == Telegram.Bot.Types.Enums.UpdateType.CallbackQuery)
@@ -58,11 +76,14 @@ namespace TelegramBot
                     var img = JsonConvert.DeserializeObject<AnswerImage>(ex._json);
                     botClient.SendAnimationAsync(update.CallbackQuery.Message.Chat.Id, img.Image).GetAwaiter();
                 }
+
+                if (inlineMes == "12")
+                {
+                    Calendar calendar = new Calendar();
+                    calendar.GetUrl();
+                    botClient.SendAnimationAsync(update.CallbackQuery.Message.Chat.Id, calendar.CalendarPath).GetAwaiter();
+                }
             }
-
-
-            
-
         }
 
         public static async Task HandleErrorAsync(ITelegramBotClient botClient,
