@@ -50,12 +50,38 @@ class Program
         }
     }
 
+    internal class Currency 
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
+        public string NumCode { get; set; }
+    }
+
+    internal class CurrenceMarket 
+    {
+        private string _url = "http://www.cbr.ru/scripts/XML_daily.asp";
+        private string _json = "";
+        public  List<Currency> Currencies { get; set; }
+        public void GetCurrencies()
+        {
+            using (WebClient client = new WebClient())
+            {
+                _json = client.DownloadString(_url);
+                var currency = JsonConvert.DeserializeObject<List<Currency>>(_json);
+                Currencies = currency;
+            }
+        }
+    }
+
 
     public static void Main(string[] args) 
     {
-        Calendar calendar = new Calendar();
-        calendar.GetMonth();
-        Console.WriteLine(calendar.CalendarPath);
+        CurrenceMarket market = new CurrenceMarket();
+        market.GetCurrencies();
+
+        //Calendar calendar = new Calendar();
+        //calendar.GetMonth();
+        //Console.WriteLine(calendar.CalendarPath);
         Console.WriteLine();
         //Jokes jokes = new Jokes();
         //jokes.GetJson();
