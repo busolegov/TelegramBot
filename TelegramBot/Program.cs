@@ -19,7 +19,7 @@ namespace TelegramBot
                         new []
                         {
                             InlineKeyboardButton.WithCallbackData("Yes or No", "11"),
-                            InlineKeyboardButton.WithCallbackData("What's day", "12"),
+                            InlineKeyboardButton.WithCallbackData("What is a day", "12"),
                         },
                     });
             await botClient.SendTextMessageAsync(message.Chat, "Нажмите на кнопку:", replyMarkup: inlineKeyboard);
@@ -37,32 +37,20 @@ namespace TelegramBot
                 var message = update.Message;
                 if (message.Text.ToLower() == "/start")
                 {
-                    await botClient.SendTextMessageAsync(message.Chat, "Привет с большого бодуна! Напишите как к вам обращаться.", replyMarkup: new ForceReplyMarkup { Selective = true });
+                    await botClient.SendTextMessageAsync(message.Chat, "Привет с большого бодуна! Как тебя звать, путник?", replyMarkup: new ForceReplyMarkup { Selective = true });
                 }
 
-                if (message.ReplyToMessage != null && message.ReplyToMessage.Text.Contains("Привет с большого бодуна! Напишите как к вам обращаться."))
+                else if (message.Text.ToLower() == "/choice")
+                {
+                    await SendChoiceBlockAsync(bot, update);
+                }
+
+                else if (message.ReplyToMessage != null && message.ReplyToMessage.Text.Contains("Привет с большого бодуна! Как тебя звать, путник?"))
                 {
                     var userName = message.Text;
                     await botClient.SendTextMessageAsync(message.Chat, "Дратути еще раз, " + userName + "! Что желаете взглянуть?");
 
                     await SendChoiceBlockAsync(bot, update);
-
-                    //    var inlineKeyboard = new InlineKeyboardMarkup(new[]
-                    //    {
-                    //        // first row
-                    //        new []
-                    //        {
-                    //            InlineKeyboardButton.WithCallbackData("Yes or No", "11"),
-                    //            InlineKeyboardButton.WithCallbackData("What's day", "12"),
-                    //        },
-                    //        // second row
-                    //        new []
-                    //        {
-                    //            InlineKeyboardButton.WithCallbackData("2.1", "21"),
-                    //            InlineKeyboardButton.WithCallbackData("2.2", "22"),
-                    //        }
-                    //    });
-                    //    await botClient.SendTextMessageAsync(message.Chat, "Нажмите на кнопку:", replyMarkup: inlineKeyboard);
                 }
             }
 
@@ -74,14 +62,16 @@ namespace TelegramBot
                     YesNo ex = new YesNo();
                     ex.GetJson();
                     var img = JsonConvert.DeserializeObject<AnswerImage>(ex._json);
-                    botClient.SendAnimationAsync(update.CallbackQuery.Message.Chat.Id, img.Image).GetAwaiter();
+                    await botClient.SendAnimationAsync(update.CallbackQuery.Message.Chat.Id, img.Image);
+                    await botClient.SendTextMessageAsync(update.CallbackQuery.Message.Chat.Id, "Посмотрим что-нибудь еще? /choice");
                 }
 
                 if (inlineMes == "12")
                 {
                     Calendar calendar = new Calendar();
                     calendar.GetUrl();
-                    botClient.SendAnimationAsync(update.CallbackQuery.Message.Chat.Id, calendar.CalendarPath).GetAwaiter();
+                    await botClient.SendTextMessageAsync(update.CallbackQuery.Message.Chat.Id, calendar.CalendarPath, disableWebPagePreview: true);
+                    await botClient.SendTextMessageAsync(update.CallbackQuery.Message.Chat.Id, "Посмотрим что-нибудь еще? /choice");
                 }
             }
         }
